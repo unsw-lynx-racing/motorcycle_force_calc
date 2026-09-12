@@ -36,9 +36,9 @@ COLA = 0.09  # coefficient of lift*area (middle of range from cossalter)
 CODA = 0.5  # coefficient of drag*area (big over estimate)
 PMAX = 36 * 10**3  # max motor power
 "rider inputs / variables"
-ROLL_ANG = np.linspace(-math.pi / 3, math.pi / 3, NUMTESTS)  # roll angle (rad)
-STEER_ANG = np.linspace(-math.radians(5), math.radians(5), NUMTESTS)  # steering angle
-VEL_FORWARD = 20  # forward velocity
+ROLL_ANG = np.linspace(0, math.pi / 3, NUMTESTS)  # roll angle (rad)
+STEER_ANG = math.radians(1)  # steering angle
+VEL_FORWARD = 30  # forward velocity
 beta_dash = CASTER_ANG + np.arctan(
     (np.sin(STEER_ANG) * np.tan(ROLL_ANG) - math.sin(CASTER_ANG) * np.cos(STEER_ANG))
     / math.cos(CASTER_ANG)
@@ -135,22 +135,26 @@ def trans_rectilinear():
 
 
 def ss_cornering():
-    fnorm = TOTAL_MASS * GRAVITY * WHEEL_BASE / COG[0] - FAERO * (
+    fnorm = TOTAL_MASS * GRAVITY * COG[0] / WHEEL_BASE - FAERO * (
         COG[2] / WHEEL_BASE
     ) * np.cos(ROLL_ANG)
-    rnorm = TOTAL_MASS * GRAVITY * (WHEEL_BASE - COG[0]) / COG[0] + FAERO * (
+    rnorm = TOTAL_MASS * GRAVITY * (WHEEL_BASE - COG[0]) / WHEEL_BASE + FAERO * (
         COG[2] / WHEEL_BASE
     ) * np.cos(ROLL_ANG)
     flateral = fnorm / (GRAVITY * np.cos(KINSTEER_ANG)) * (VEL_FORWARD**2 / RCURVEREAR)
     rlateral = rnorm / GRAVITY * (VEL_FORWARD**2 / RCURVEREAR)
-    return fnorm, rnorm, flateral, rlateral
+    freq_cof = flateral / fnorm
+    rreq_cof = rlateral / rnorm
+    return fnorm, rnorm, flateral, rlateral, freq_cof, rreq_cof
 
 
 lfsfnorm, lfsrnorm = level_free_stand()
 ssrfnorm, ssrrnorm, ssvmax = ss_rectilinear()
 tra_englim, tra_traclim, tra_wheelielim = trans_rectilinear()
-ssafnorm, ssarnorm, ssaflateral, ssarlateral = ss_cornering()
+ssafnorm, ssarnorm, ssaflateral, ssarlateral, freq_cof, rreq_cof = ss_cornering()
 with open("force_calc_results.txt", "w") as f:
+    print(KINSTEER_ANG, file=f)
+    print(mu, file=f)
     print(
         f"Level Free Stand:\n Front Normal Force = \n{lfsfnorm}\n Rear Normal Force = \n{lfsrnorm}",
         file=f,
@@ -164,6 +168,6 @@ with open("force_calc_results.txt", "w") as f:
         file=f,
     )
     print(
-        f"Steady-State Cornering:\n Front Normal Force =\n {ssafnorm}\n Rear Normal Force =\n {ssarnorm}\n Front Lateral Force =\n {ssaflateral}\n Rear Lateral Force =\n {ssarlateral}",
+        f"Steady-State Cornering:\n Front Normal Force =\n {ssafnorm}\n Rear Normal Force =\n {ssarnorm}\n Front Lateral Force =\n {ssaflateral}\n Rear Lateral Force =\n {ssarlateral}\n Front Coefficient of Friction =\n {freq_cof}\n Rear Coefficient of Friction =\n {rreq_cof}",
         file=f,
     )
