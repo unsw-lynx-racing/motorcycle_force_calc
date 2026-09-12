@@ -38,9 +38,13 @@ COLA = 0.09  # coefficient of lift*area (middle of range from cossalter)
 CODA = 0.5  # coefficient of drag*area (big over estimate)
 PMAX = 36 * 10**3  # max motor power
 "rider inputs / variables"
-ROLL_ANG = np.linspace(0, math.pi / 3, NUMTESTS)  # roll angle (rad)
 STEER_ANG = math.radians(1)  # steering angle
 VEL_FORWARD = 30  # forward velocity
+RCURVEREAR = 68.0
+"""WHEEL_BASE / np.tan(KINSTEER_ANG)"""
+ROLL_ANG = math.atan(VEL_FORWARD**2 / (GRAVITY * RCURVEREAR))
+"""np.linspace(0, math.pi / 3, NUMTESTS)  # roll angle (rad)"""
+
 beta_dash = CASTER_ANG + np.arctan(
     (np.sin(STEER_ANG) * np.tan(ROLL_ANG) - math.sin(CASTER_ANG) * np.cos(STEER_ANG))
     / math.cos(CASTER_ANG)
@@ -73,13 +77,14 @@ mu = (
     + FWHEEL_THICKNESS
     - RWHEEL_THICKNESS
 ) / ((c4 + c5) * np.cos(ROLL_ANG))  # driving traction coefficient
-KINSTEER_ANG = np.arctan(
+KINSTEER_ANG = 0.01911531850199284
+"""np.arctan(
     (np.sin(STEER_ANG) * np.cos(CASTER_ANG + mu))
     / (
         np.cos(ROLL_ANG) * (np.cos(STEER_ANG))
         - np.sin(ROLL_ANG) * np.sin(STEER_ANG) * np.sin(CASTER_ANG + mu)
     )
-)  # kinematic steering angle
+)"""  # kinematic steering angle
 x_Pf = (c1 + c2) * np.sin(mu) + (c4 + c5) * np.cos(mu)
 y_Pf = (
     (-(c1 + c2) * np.cos(mu) + (c4 + c5) * np.sin(mu)) * np.sin(ROLL_ANG)
@@ -91,7 +96,6 @@ C = np.tan(STEER_ANG) / (x_Pf + y_Pf * np.tan(STEER_ANG))  # path curvature
 FDRAG = 0.5 * AIR_DENS * CODA * VEL_FORWARD**2  # drag force
 FAERO = 0.5 * AIR_DENS * COLA * VEL_FORWARD**2  # aerodynamic force
 THRUST_LEVEL_SS = FDRAG
-RCURVEREAR = WHEEL_BASE / np.tan(KINSTEER_ANG)
 
 
 def level_free_stand():
