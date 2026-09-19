@@ -153,8 +153,7 @@ ssrfnorm, ssrrnorm, ssvmax = ss_rectilinear()
 tra_englim, tra_traclim, tra_wheelielim = trans_rectilinear()
 ssafnorm, ssarnorm, ssaflateral, ssarlateral, freq_cof, rreq_cof = ss_cornering()
 with open("force_calc_results.txt", "w") as f:
-    print(KINSTEER_ANG, file=f)
-    print(mu, file=f)
+    print(f"Cornering Radius = {RCURVEREAR}", file=f)
     print(
         f"Level Free Stand:\n Front Normal Force = \n{lfsfnorm}\n Rear Normal Force = \n{lfsrnorm}",
         file=f,
