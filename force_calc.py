@@ -12,17 +12,19 @@ NUMTESTS = 30  # number of tests to run
 
 # Dimensions relative to rear contact patch
 
-BIKE_MASS = 120  # m
-RIDER_MASS = 100
-TOTAL_MASS = BIKE_MASS + RIDER_MASS
+#BIKE_MASS = 120  # m
+#RIDER_MASS = 100
+#TOTAL_MASS = BIKE_MASS + RIDER_MASS
+TOTAL_MASS = 228918.32/1000  # kg
 GRAVITY = 9.8  # g
 WHEEL_BASE = 1.3  # p
 FORK_OFFSET = 0.05  # fork offset
 # Bike COG assuming centred
-BIKECOG = np.array([0.65, 0, 0.895 / 2])  # x, y, z
+#BIKECOG = np.array([0.65, 0, 0.895 / 2])  # x, y, z
 # Rider COG is just placed randomly, should be changed based on erg study
-RIDERCOG = np.array([0.50, 0, 1.0])  # x, y, z
-COG = (BIKE_MASS * BIKECOG + RIDER_MASS * RIDERCOG) / (TOTAL_MASS)
+#RIDERCOG = np.array([0.50, 0, 1.0])  # x, y, z
+#COG = (BIKE_MASS * BIKECOG + RIDER_MASS * RIDERCOG) / (TOTAL_MASS)
+COG = np.array([0.60293, 0, 652.81])
 FWHEELRAD = 0.578 / 2  # front wheel radius
 RWHEELRAD = 0.601 / 2  # rear wheel radius
 FWHEEL_THICKNESS = 0.03175  # front wheel thickness
