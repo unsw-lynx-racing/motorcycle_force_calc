@@ -24,7 +24,7 @@ FORK_OFFSET = 0.05  # fork offset
 # Rider COG is just placed randomly, should be changed based on erg study
 #RIDERCOG = np.array([0.50, 0, 1.0])  # x, y, z
 #COG = (BIKE_MASS * BIKECOG + RIDER_MASS * RIDERCOG) / (TOTAL_MASS)
-COG = np.array([0.60293, 0, 652.81])
+COG = np.array([0.60293, 0, 0.65281])
 FWHEELRAD = 0.578 / 2  # front wheel radius
 RWHEELRAD = 0.601 / 2  # rear wheel radius
 FWHEEL_THICKNESS = 0.03175  # front wheel thickness
