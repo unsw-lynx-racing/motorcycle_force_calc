@@ -24,7 +24,7 @@ FORK_OFFSET = 0.05  # fork offset
 # Rider COG is just placed randomly, should be changed based on erg study
 #RIDERCOG = np.array([0.50, 0, 1.0])  # x, y, z
 #COG = (BIKE_MASS * BIKECOG + RIDER_MASS * RIDERCOG) / (TOTAL_MASS)
-COG = np.array([0.60293, 0, 652.81])
+COG = np.array([0.60293, 0, 0.65281])
 FWHEELRAD = 0.578 / 2  # front wheel radius
 RWHEELRAD = 0.601 / 2  # rear wheel radius
 FWHEEL_THICKNESS = 0.03175  # front wheel thickness
@@ -38,9 +38,13 @@ COLA = 0.09  # coefficient of lift*area (middle of range from cossalter)
 CODA = 0.5  # coefficient of drag*area (big over estimate)
 PMAX = 36 * 10**3  # max motor power
 "rider inputs / variables"
-ROLL_ANG = np.linspace(0, math.pi / 3, NUMTESTS)  # roll angle (rad)
 STEER_ANG = math.radians(1)  # steering angle
 VEL_FORWARD = 30  # forward velocity
+RCURVEREAR = np.linspace(68, 250, NUMTESTS)  # rear wheel path curvature
+"""WHEEL_BASE / np.tan(KINSTEER_ANG)"""
+ROLL_ANG = np.arctan(VEL_FORWARD**2 / (GRAVITY * RCURVEREAR))
+"""np.linspace(0, math.pi / 3, NUMTESTS)  # roll angle (rad)"""
+
 beta_dash = CASTER_ANG + np.arctan(
     (np.sin(STEER_ANG) * np.tan(ROLL_ANG) - math.sin(CASTER_ANG) * np.cos(STEER_ANG))
     / math.cos(CASTER_ANG)
@@ -91,7 +95,6 @@ C = np.tan(STEER_ANG) / (x_Pf + y_Pf * np.tan(STEER_ANG))  # path curvature
 FDRAG = 0.5 * AIR_DENS * CODA * VEL_FORWARD**2  # drag force
 FAERO = 0.5 * AIR_DENS * COLA * VEL_FORWARD**2  # aerodynamic force
 THRUST_LEVEL_SS = FDRAG
-RCURVEREAR = WHEEL_BASE / np.tan(KINSTEER_ANG)
 
 
 def level_free_stand():
@@ -155,7 +158,8 @@ ssrfnorm, ssrrnorm, ssvmax = ss_rectilinear()
 tra_englim, tra_traclim, tra_wheelielim = trans_rectilinear()
 ssafnorm, ssarnorm, ssaflateral, ssarlateral, freq_cof, rreq_cof = ss_cornering()
 with open("force_calc_results.txt", "w") as f:
-    print(f"Cornering Radius = {RCURVEREAR}", file=f)
+    print(f"Corner Radius = {RCURVEREAR}", file=f)
+    print(f"Roll Angle = {np.degrees(ROLL_ANG)}", file=f)
     print(
         f"Level Free Stand:\n Front Normal Force = \n{lfsfnorm}\n Rear Normal Force = \n{lfsrnorm}",
         file=f,
