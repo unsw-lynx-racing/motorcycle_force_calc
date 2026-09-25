@@ -8,7 +8,7 @@ import math
 
 import numpy as np
 
-NUMTESTS = 30  # number of tests to run
+NUMTESTS = 100  # number of tests to run
 
 # Dimensions relative to rear contact patch
 
@@ -39,7 +39,7 @@ CODA = 0.5  # coefficient of drag*area (big over estimate)
 PMAX = 36 * 10**3  # max motor power
 "rider inputs / variables"
 STEER_ANG = math.radians(1)  # steering angle
-VEL_FORWARD = np.arange(1, 50, 1)  # forward velocity
+VEL_FORWARD = np.arange(1, 51, 1)  # forward velocity
 RCURVEREAR = np.linspace(68, 250, NUMTESTS)  # rear wheel path curvature
 """WHEEL_BASE / np.tan(KINSTEER_ANG)"""
 ROLL_ANG = np.arctan(
@@ -183,7 +183,11 @@ with open("force_calc_results.txt", "w") as f:
         file=f,
     )
     print(
-        f"Max Frontal Index = \n {np.where(np.sqrt(ssafnorm**2 + ssaflateral**2) == np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)]))}\n Max Rear Index = \n {np.where(np.sqrt(ssarnorm**2 + ssarlateral**2) == np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)]))}",
+        f"Max Frontal Params = Corner Radius: \n {RCURVEREAR[np.where(np.sqrt(ssafnorm**2 + ssaflateral**2) == np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)]))[0]]}\n Velocity:\n {VEL_FORWARD[np.where(np.sqrt(ssafnorm**2 + ssaflateral**2) == np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)]))[1]]}\n Max Rear Params = Corner Radius: \n {RCURVEREAR[np.where(np.sqrt(ssarnorm**2 + ssarlateral**2) == np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)]))[0]]}\n Velocity:\n {VEL_FORWARD[np.where(np.sqrt(ssarnorm**2 + ssarlateral**2) == np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)]))[1]]}",
+        file=f,
+    )
+    print(
+        f"COF:\n Front COF = \n {np.max(freq_cof[(freq_cof < 1.35) & (rreq_cof < 1.35)])}\n Rear COF = \n {np.max(rreq_cof[(freq_cof < 1.35) & (rreq_cof < 1.35)])}",
         file=f,
     )
     """
