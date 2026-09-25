@@ -12,18 +12,18 @@ NUMTESTS = 30  # number of tests to run
 
 # Dimensions relative to rear contact patch
 
-#BIKE_MASS = 120  # m
-#RIDER_MASS = 100
-#TOTAL_MASS = BIKE_MASS + RIDER_MASS
-TOTAL_MASS = 228918.32/1000  # kg
+# BIKE_MASS = 120  # m
+# RIDER_MASS = 100
+# TOTAL_MASS = BIKE_MASS + RIDER_MASS
+TOTAL_MASS = 228918.32 / 1000  # kg
 GRAVITY = 9.8  # g
 WHEEL_BASE = 1.3  # p
 FORK_OFFSET = 0.05  # fork offset
 # Bike COG assuming centred
-#BIKECOG = np.array([0.65, 0, 0.895 / 2])  # x, y, z
+# BIKECOG = np.array([0.65, 0, 0.895 / 2])  # x, y, z
 # Rider COG is just placed randomly, should be changed based on erg study
-#RIDERCOG = np.array([0.50, 0, 1.0])  # x, y, z
-#COG = (BIKE_MASS * BIKECOG + RIDER_MASS * RIDERCOG) / (TOTAL_MASS)
+# RIDERCOG = np.array([0.50, 0, 1.0])  # x, y, z
+# COG = (BIKE_MASS * BIKECOG + RIDER_MASS * RIDERCOG) / (TOTAL_MASS)
 COG = np.array([0.60293, 0, 0.65281])
 FWHEELRAD = 0.578 / 2  # front wheel radius
 RWHEELRAD = 0.601 / 2  # rear wheel radius
@@ -39,10 +39,12 @@ CODA = 0.5  # coefficient of drag*area (big over estimate)
 PMAX = 36 * 10**3  # max motor power
 "rider inputs / variables"
 STEER_ANG = math.radians(1)  # steering angle
-VEL_FORWARD = 30  # forward velocity
+VEL_FORWARD = np.arange(1, 50, 1)  # forward velocity
 RCURVEREAR = np.linspace(68, 250, NUMTESTS)  # rear wheel path curvature
 """WHEEL_BASE / np.tan(KINSTEER_ANG)"""
-ROLL_ANG = np.arctan(VEL_FORWARD**2 / (GRAVITY * RCURVEREAR))
+ROLL_ANG = np.arctan(
+    VEL_FORWARD**2 / (GRAVITY * RCURVEREAR[:, None])
+)  # roll angle (rad)
 """np.linspace(0, math.pi / 3, NUMTESTS)  # roll angle (rad)"""
 
 beta_dash = CASTER_ANG + np.arctan(
@@ -146,8 +148,12 @@ def ss_cornering():
     rnorm = TOTAL_MASS * GRAVITY * (WHEEL_BASE - COG[0]) / WHEEL_BASE + FAERO * (
         COG[2] / WHEEL_BASE
     ) * np.cos(ROLL_ANG)
-    flateral = fnorm / (GRAVITY * np.cos(KINSTEER_ANG)) * (VEL_FORWARD**2 / RCURVEREAR)
-    rlateral = rnorm / GRAVITY * (VEL_FORWARD**2 / RCURVEREAR)
+    flateral = (
+        fnorm
+        / (GRAVITY * np.cos(KINSTEER_ANG))
+        * (VEL_FORWARD**2 / RCURVEREAR[:, None])
+    )
+    rlateral = rnorm / GRAVITY * (VEL_FORWARD**2 / RCURVEREAR[:, None])
     freq_cof = flateral / fnorm
     rreq_cof = rlateral / rnorm
     return fnorm, rnorm, flateral, rlateral, freq_cof, rreq_cof
@@ -173,6 +179,19 @@ with open("force_calc_results.txt", "w") as f:
         file=f,
     )
     print(
-        f"Steady-State Cornering:\n Front Normal Force =\n {ssafnorm}\n Rear Normal Force =\n {ssarnorm}\n Front Lateral Force =\n {ssaflateral}\n Rear Lateral Force =\n {ssarlateral}\n Front Coefficient of Friction =\n {freq_cof}\n Rear Coefficient of Friction =\n {rreq_cof}",
+        f"Max Frontal Load = \n {np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)])}\n Max Rear Load = \n {np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)])}",
         file=f,
     )
+    print(
+        f"Max Frontal Index = \n {np.where(np.sqrt(ssafnorm**2 + ssaflateral**2) == np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)]))}\n Max Rear Index = \n {np.where(np.sqrt(ssarnorm**2 + ssarlateral**2) == np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)]))}",
+        file=f,
+    )
+    """
+    print(
+        f"Steady-State Cornering:\n Max Front Normal Force =\n {np.max(ssafnorm[(freq_cof < 1.35) & (rreq_cof < 1.35)])}\n Max Rear Normal Force =\n {np.max(ssarnorm[(freq_cof < 1.35) & (rreq_cof < 1.35)])}\n Front Lateral Force =\n {np.max(ssaflateral[(freq_cof < 1.35) & (rreq_cof < 1.35)])}\n Rear Lateral Force =\n {np.max(ssarlateral[(freq_cof < 1.35) & (rreq_cof < 1.35)])}\n Front Coefficient of Friction =\n {np.max(freq_cof[(freq_cof < 1.35) & (rreq_cof < 1.35)])}\n Rear Coefficient of Friction =\n {np.max(rreq_cof[(freq_cof < 1.35) & (rreq_cof < 1.35)])}",
+        file=f,
+    )
+    print(
+        f"Maximum Frontal Index =\n {np.argmax(freq_cof[(freq_cof < 1.35) & (rreq_cof < 1.35)])}\n Maximum Rear Index =\n {np.argmax(rreq_cof[(freq_cof < 1.35) & (rreq_cof < 1.35)])}\n Front Lateral Index =\n {np.argmax(ssaflateral[(freq_cof < 1.35) & (rreq_cof < 1.35)])}\n Rear Lateral Index =\n {np.argmax(ssarlateral[(freq_cof < 1.35) & (rreq_cof < 1.35)])} Front Coefficient of Friction Index =\n {np.argmax(freq_cof[(freq_cof < 1.35) & (rreq_cof < 1.35)])}\n Rear Coefficient of Friction Index =\n {np.argmax(rreq_cof[(freq_cof < 1.35) & (rreq_cof < 1.35)])}", 
+        file=f
+    )"""
