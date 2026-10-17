@@ -8,7 +8,7 @@ import math
 
 import numpy as np
 
-NUMTESTS = 100  # number of tests to run
+NUMTESTS = 200  # number of tests to run
 
 # Dimensions relative to rear contact patch
 
@@ -165,7 +165,10 @@ tra_englim, tra_traclim, tra_wheelielim = trans_rectilinear()
 ssafnorm, ssarnorm, ssaflateral, ssarlateral, freq_cof, rreq_cof = ss_cornering()
 with open("force_calc_results.txt", "w") as f:
     print(f"Corner Radius = {RCURVEREAR}", file=f)
-    print(f"Roll Angle = {np.degrees(ROLL_ANG)}", file=f)
+    print(
+        f"Max Roll Angle = {np.max(np.degrees(ROLL_ANG)[(freq_cof < 1.35) & (rreq_cof < 1.35)])}",
+        file=f,
+    )
     print(
         f"Level Free Stand:\n Front Normal Force = \n{lfsfnorm}\n Rear Normal Force = \n{lfsrnorm}",
         file=f,
@@ -179,11 +182,11 @@ with open("force_calc_results.txt", "w") as f:
         file=f,
     )
     print(
-        f"Max Frontal Load = \n {np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)])}\n Max Rear Load = \n {np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)])}",
+        f"Max Corner Frontal Load = \n {np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)])}\n Front Cornering Normal Force = \n {np.max(ssafnorm[(freq_cof < 1.35) & (rreq_cof < 1.35)])}\n Max Corner Rear Load = \n {np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)])}",
         file=f,
     )
     print(
-        f"Max Frontal Params = Corner Radius: \n {RCURVEREAR[np.where(np.sqrt(ssafnorm**2 + ssaflateral**2) == np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)]))[0]]}\n Velocity:\n {VEL_FORWARD[np.where(np.sqrt(ssafnorm**2 + ssaflateral**2) == np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)]))[1]]}\n Max Rear Params = Corner Radius: \n {RCURVEREAR[np.where(np.sqrt(ssarnorm**2 + ssarlateral**2) == np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)]))[0]]}\n Velocity:\n {VEL_FORWARD[np.where(np.sqrt(ssarnorm**2 + ssarlateral**2) == np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)]))[1]]}",
+        f"Max Corner Frontal Params = Corner Radius: \n {RCURVEREAR[np.where(np.sqrt(ssafnorm**2 + ssaflateral**2) == np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)]))[0]]}\n Velocity:\n {VEL_FORWARD[np.where(np.sqrt(ssafnorm**2 + ssaflateral**2) == np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)]))[1]]}\n Max Corner Rear Params = Corner Radius: \n {RCURVEREAR[np.where(np.sqrt(ssarnorm**2 + ssarlateral**2) == np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)]))[0]]}\n Velocity:\n {VEL_FORWARD[np.where(np.sqrt(ssarnorm**2 + ssarlateral**2) == np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < 1.35) & (rreq_cof < 1.35)]))[1]]}",
         file=f,
     )
     print(
