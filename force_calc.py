@@ -45,7 +45,7 @@ CAMBER_ANG = np.arcsin(
 KINSTEER_ANG = np.arctan(np.cos(CASTER_ANG) * np.tan(STEER_ANG) / np.cos(ROLL_ANG))
 
 FDRAG = 0.5 * AIR_DENS * CODA * VEL_FORWARD**2  # drag force
-FAERO = 0.5 * AIR_DENS * COLA * VEL_FORWARD**2  # aerodynamic force
+FLIFT = 0.5 * AIR_DENS * COLA * VEL_FORWARD**2  # aerodynamic lift force
 THRUST_LEVEL_SS = FDRAG
 
 
@@ -92,18 +92,18 @@ def trans_rectilinear():
 
 
 def ss_cornering():
-    fnorm = TOTAL_MASS * GRAVITY * COG[0] / WHEEL_BASE - FAERO * (
+    fnorm = TOTAL_MASS * GRAVITY * COG[0] / WHEEL_BASE - FDRAG * (
         COG[2] / WHEEL_BASE
     ) * np.cos(ROLL_ANG)
-    rnorm = TOTAL_MASS * GRAVITY * (WHEEL_BASE - COG[0]) / WHEEL_BASE + FAERO * (
+    rnorm = TOTAL_MASS * GRAVITY * (WHEEL_BASE - COG[0]) / WHEEL_BASE + FDRAG * (
         COG[2] / WHEEL_BASE
     ) * np.cos(ROLL_ANG)
     flateral = (
-        fnorm
-        / (GRAVITY * np.cos(KINSTEER_ANG))
-        * (VEL_FORWARD**2 / RCURVEREAR[:, None])
+        COG[0] / (WHEEL_BASE * np.cos(KINSTEER_ANG)) * VEL_FORWARD**2 / RCURVEREAR[:, None] * TOTAL_MASS
     )
-    rlateral = rnorm / GRAVITY * (VEL_FORWARD**2 / RCURVEREAR[:, None])
+    rlateral = (
+        (WHEEL_BASE - COG[0]) / (WHEEL_BASE) * VEL_FORWARD**2 / RCURVEREAR[:, None] * TOTAL_MASS
+    )
     freq_cof = flateral / fnorm
     rreq_cof = rlateral / rnorm
     return fnorm, rnorm, flateral, rlateral, freq_cof, rreq_cof
@@ -132,7 +132,7 @@ with open("force_calc_results.txt", "w") as f:
         file=f,
     )
     print(
-        f"Max Corner Frontal Load = \n {np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < COF) & (rreq_cof < COF)])}\n Front Cornering Normal Force = \n {np.max(ssafnorm[(freq_cof < COF) & (rreq_cof < COF)])}\n Max Corner Rear Load = \n {np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < COF) & (rreq_cof < COF)])}",
+        f"Max Corner Frontal Load = \n {np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < COF) & (rreq_cof < COF)])}\n Max Corner Rear Load = \n {np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < COF) & (rreq_cof < COF)])}",
         file=f,
     )
     print(
