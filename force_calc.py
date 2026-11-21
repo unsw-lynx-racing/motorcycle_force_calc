@@ -31,11 +31,10 @@ PMAX = 36 * 10**3  # max motor power
 "rider inputs / variables"
 STEER_ANG = math.radians(1)  # steering angle
 VEL_FORWARD = np.arange(1, 51, 1)  # forward velocity
-RCURVEREAR = np.linspace(68, 250, NUMTESTS)  # rear wheel path curvature
-"""WHEEL_BASE / np.tan(KINSTEER_ANG)"""
+RCURVEREAR = np.linspace(68, 250, NUMTESTS)  # rear wheel path curvature (just path curvature atp due to assumptions)
 ROLL_ANG = np.arctan(
     VEL_FORWARD**2 / (GRAVITY * RCURVEREAR[:, None])
-)  # roll angle (rad)
+)  # ideal roll angle for given velocity and corner radius (rad)
 
 CAMBER_ANG = np.arcsin(
     np.cos(STEER_ANG) * np.sin(ROLL_ANG)
@@ -43,6 +42,7 @@ CAMBER_ANG = np.arcsin(
 )  # front camber angle, negligible pitch
 
 KINSTEER_ANG = np.arctan(np.cos(CASTER_ANG) * np.tan(STEER_ANG) / np.cos(ROLL_ANG))
+#kinematic steering angle
 
 FDRAG = 0.5 * AIR_DENS * CODA * VEL_FORWARD**2  # drag force
 FLIFT = 0.5 * AIR_DENS * COLA * VEL_FORWARD**2  # aerodynamic lift force
@@ -82,13 +82,6 @@ def trans_rectilinear():
     ) - FDRAG / TOTAL_MASS
     amax_wheelielim = GRAVITY * (COG[0] / COG[2]) - FDRAG / TOTAL_MASS
     return amax_englim, amax_traclim, amax_wheelielim
-    """trans_rectilinear_amax = min(amax_englim, amax_traclim, amax_wheelielim)
-    if trans_rectilinear_amax == amax_englim:
-        return amax_englim, "Engine limited"
-    elif trans_rectilinear_amax == amax_traclim:
-        return amax_traclim, "Traction limited"
-    else:
-        return amax_wheelielim, "Wheelie limited"""
 
 
 def ss_cornering():
