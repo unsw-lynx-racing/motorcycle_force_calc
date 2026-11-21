@@ -81,7 +81,11 @@ def trans_rectilinear():
         1 - COF * COG[2] / WHEEL_BASE
     ) - FDRAG / TOTAL_MASS
     amax_wheelielim = GRAVITY * (COG[0] / COG[2]) - FDRAG / TOTAL_MASS
-    return amax_englim, amax_traclim, amax_wheelielim
+    #Max load on front wheel under braking
+    nmaxbrake = TOTAL_MASS * GRAVITY
+    ftyremaxbrake = nmaxbrake * (WHEEL_BASE - COG[0]) / COG[2]
+    rtyremaxbrake = nmaxbrake * COG[0] / COG[2]
+    return amax_englim, amax_traclim, amax_wheelielim, nmaxbrake, ftyremaxbrake, rtyremaxbrake
 
 
 def ss_cornering():
@@ -104,12 +108,12 @@ def ss_cornering():
 
 lfsfnorm, lfsrnorm = level_free_stand()
 ssrfnorm, ssrrnorm, ssvmax = ss_rectilinear()
-tra_englim, tra_traclim, tra_wheelielim = trans_rectilinear()
+tra_englim, tra_traclim, tra_wheelielim, tra_nmaxbrake, tra_ftyremaxbrake, tra_rtyremaxbrake = trans_rectilinear()
 ssafnorm, ssarnorm, ssaflateral, ssarlateral, freq_cof, rreq_cof = ss_cornering()
 with open("force_calc_results.txt", "w") as f:
     print(f"Corner Radius = {RCURVEREAR}", file=f)
     print(
-        f"Max Roll Angle = {np.max(np.degrees(ROLL_ANG)[(freq_cof < COF) & (rreq_cof < COF)])}",
+        f"Max Roll Angle = {np.degrees(ROLL_ANG)[0,:]}",
         file=f,
     )
     print(
@@ -121,19 +125,19 @@ with open("force_calc_results.txt", "w") as f:
         file=f,
     )
     print(
-        f"Transient Rectilinear:\n Maximum Engine Limited Acceleration =\n {tra_englim}\n Traction Limited Acceleration =\n {tra_traclim}\n Wheelie Limited Acceleration =\n {tra_wheelielim}",
+        f"Transient Rectilinear:\n Maximum Engine Limited Acceleration =\n {tra_englim}\n Traction Limited Acceleration =\n {tra_traclim}\n Wheelie Limited Acceleration =\n {tra_wheelielim} \n Max Normal Load on Front and Rear Wheel Under Braking and Accel Respectively = \n {tra_nmaxbrake} \n Max Lateral Load on Front = \n {tra_ftyremaxbrake} \n Max Lateral Load on Rear = \n {tra_rtyremaxbrake}",
         file=f,
     )
     print(
-        f"Max Corner Frontal Load = \n {np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < COF) & (rreq_cof < COF)])}\n Max Corner Rear Load = \n {np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < COF) & (rreq_cof < COF)])}",
+        f"Steady State Cornering:\n Max Corner Frontal Load (Parallel to bike when looking from front) = \n {np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < COF) & (rreq_cof < COF)])}\n Max Corner Rear Load (Parallel to bike when looking from front) = \n {np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < COF) & (rreq_cof < COF)])}",
         file=f,
     )
     print(
-        f"Max Corner Frontal Params =\n Corner Radius: \n {RCURVEREAR[np.where(np.sqrt(ssafnorm**2 + ssaflateral**2) == np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < COF) & (rreq_cof < COF)]))[0]]}\n Velocity:\n {VEL_FORWARD[np.where(np.sqrt(ssafnorm**2 + ssaflateral**2) == np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < COF) & (rreq_cof < COF)]))[1]]}\n Max Corner Rear Params =\n Corner Radius: \n {RCURVEREAR[np.where(np.sqrt(ssarnorm**2 + ssarlateral**2) == np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < COF) & (rreq_cof < COF)]))[0]]}\n Velocity:\n {VEL_FORWARD[np.where(np.sqrt(ssarnorm**2 + ssarlateral**2) == np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < COF) & (rreq_cof < COF)]))[1]]}",
+        f" Max Corner Frontal Params =\n Corner Radius: \n {RCURVEREAR[np.where(np.sqrt(ssafnorm**2 + ssaflateral**2) == np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < COF) & (rreq_cof < COF)]))[0]]}\n Velocity:\n {VEL_FORWARD[np.where(np.sqrt(ssafnorm**2 + ssaflateral**2) == np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < COF) & (rreq_cof < COF)]))[1]]}\n Max Corner Rear Params =\n Corner Radius: \n {RCURVEREAR[np.where(np.sqrt(ssarnorm**2 + ssarlateral**2) == np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < COF) & (rreq_cof < COF)]))[0]]}\n Velocity:\n {VEL_FORWARD[np.where(np.sqrt(ssarnorm**2 + ssarlateral**2) == np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < COF) & (rreq_cof < COF)]))[1]]}",
         file=f,
     )
     print(
-        f"COF:\n Front COF = \n {np.max(freq_cof[(freq_cof < COF) & (rreq_cof < COF)])}\n Rear COF = \n {np.max(rreq_cof[(freq_cof < COF) & (rreq_cof < COF)])}",
+        f" COF:\n Front COF = \n {np.max(freq_cof[(freq_cof < COF) & (rreq_cof < COF)])}\n Rear COF = \n {np.max(rreq_cof[(freq_cof < COF) & (rreq_cof < COF)])}",
         file=f,
     )
     """
