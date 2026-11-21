@@ -111,11 +111,6 @@ ssrfnorm, ssrrnorm, ssvmax = ss_rectilinear()
 tra_englim, tra_traclim, tra_wheelielim, tra_nmaxbrake, tra_ftyremaxbrake, tra_rtyremaxbrake = trans_rectilinear()
 ssafnorm, ssarnorm, ssaflateral, ssarlateral, freq_cof, rreq_cof = ss_cornering()
 with open("force_calc_results.txt", "w") as f:
-    print(f"Corner Radius = {RCURVEREAR}", file=f)
-    print(
-        f"Max Roll Angle = {np.degrees(ROLL_ANG)[0,:]}",
-        file=f,
-    )
     print(
         f"Level Free Stand:\n Front Normal Force = \n{lfsfnorm}\n Rear Normal Force = \n{lfsrnorm}",
         file=f,
@@ -133,6 +128,10 @@ with open("force_calc_results.txt", "w") as f:
         file=f,
     )
     print(
+         f" Max Front Normal = \n {ssafnorm[np.where(np.sqrt(ssafnorm**2 + ssaflateral**2) == np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < COF) & (rreq_cof < COF)]))]}\n Max Front Lateral = \n {ssaflateral[np.where(np.sqrt(ssafnorm**2 + ssaflateral**2) == np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < COF) & (rreq_cof < COF)]))]}\n Max Rear Normal = \n {ssarnorm[np.where(np.sqrt(ssarnorm**2 + ssarlateral**2) == np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < COF) & (rreq_cof < COF)]))]}\n Max Rear Lateral = \n {ssarlateral[np.where(np.sqrt(ssarnorm**2 + ssarlateral**2) == np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < COF) & (rreq_cof < COF)]))]}\n Max Rear Lateral = \n {ssarlateral[np.where(np.sqrt(ssarnorm**2 + ssarlateral**2) == np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < COF) & (rreq_cof < COF)]))]}",
+         file=f,
+        )
+    print(
         f" Max Corner Frontal Params =\n Corner Radius: \n {RCURVEREAR[np.where(np.sqrt(ssafnorm**2 + ssaflateral**2) == np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < COF) & (rreq_cof < COF)]))[0]]}\n Velocity:\n {VEL_FORWARD[np.where(np.sqrt(ssafnorm**2 + ssaflateral**2) == np.max(np.sqrt(ssafnorm**2 + ssaflateral**2)[(freq_cof < COF) & (rreq_cof < COF)]))[1]]}\n Max Corner Rear Params =\n Corner Radius: \n {RCURVEREAR[np.where(np.sqrt(ssarnorm**2 + ssarlateral**2) == np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < COF) & (rreq_cof < COF)]))[0]]}\n Velocity:\n {VEL_FORWARD[np.where(np.sqrt(ssarnorm**2 + ssarlateral**2) == np.max(np.sqrt(ssarnorm**2 + ssarlateral**2)[(freq_cof < COF) & (rreq_cof < COF)]))[1]]}",
         file=f,
     )
@@ -140,12 +139,7 @@ with open("force_calc_results.txt", "w") as f:
         f" COF:\n Front COF = \n {np.max(freq_cof[(freq_cof < COF) & (rreq_cof < COF)])}\n Rear COF = \n {np.max(rreq_cof[(freq_cof < COF) & (rreq_cof < COF)])}",
         file=f,
     )
-    """
     print(
-        f"Steady-State Cornering:\n Max Front Normal Force =\n {np.max(ssafnorm[(freq_cof < COF) & (rreq_cof < COF)])}\n Max Rear Normal Force =\n {np.max(ssarnorm[(freq_cof < COF) & (rreq_cof < COF)])}\n Front Lateral Force =\n {np.max(ssaflateral[(freq_cof < COF) & (rreq_cof < COF)])}\n Rear Lateral Force =\n {np.max(ssarlateral[(freq_cof < COF) & (rreq_cof < COF)])}\n Front Coefficient of Friction =\n {np.max(freq_cof[(freq_cof < COF) & (rreq_cof < COF)])}\n Rear Coefficient of Friction =\n {np.max(rreq_cof[(freq_cof < COF) & (rreq_cof < COF)])}",
+        f"Max Roll Angle = {np.degrees(np.max(ROLL_ANG[(freq_cof < COF) & (rreq_cof < COF)]))}",
         file=f,
-    )
-    print(
-        f"Maximum Frontal Index =\n {np.argmax(freq_cof[(freq_cof < COF) & (rreq_cof < COF)])}\n Maximum Rear Index =\n {np.argmax(rreq_cof[(freq_cof < COF) & (rreq_cof < COF)])}\n Front Lateral Index =\n {np.argmax(ssaflateral[(freq_cof < COF) & (rreq_cof < COF)])}\n Rear Lateral Index =\n {np.argmax(ssarlateral[(freq_cof < COF) & (rreq_cof < COF)])} Front Coefficient of Friction Index =\n {np.argmax(freq_cof[(freq_cof < COF) & (rreq_cof < COF)])}\n Rear Coefficient of Friction Index =\n {np.argmax(rreq_cof[(freq_cof < COF) & (rreq_cof < COF)])}", 
-        file=f
-    )"""
+        )
